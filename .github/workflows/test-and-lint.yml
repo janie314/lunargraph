@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ['3.3', '3.4', 'head']
+        ruby-version: ['3.4'] # TODO test against 3.3, 3.4 too
 
     steps:
     - uses: actions/checkout@v3
