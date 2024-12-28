@@ -1,3 +1,3 @@
 # Lunargraph
 
-A fork of [Lunargraph](https://github.com/castwide/lunargraph).
+A fork of [Solargraph](https://github.com/castwide/solargraph).

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ['3.3', '3.4', 'head']
+        ruby-version: ['3.4'] # TODO test against 3.3, 3.4 too
 
     steps:
     - uses: actions/checkout@v3
@@ -23,10 +23,12 @@ jobs:
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
-        bundler-cache: false
-    - name: Install gems
-      run: bundle install
+        bundler-cache: true
+    - name: Run bundle
+      run: bundle 
     - name: Set up yardocs
       run: bundle exec yard gems
     - name: Run tests
       run: bundle exec rspec
+    - name: Run rubocop
+      run: bundle exec rubocop

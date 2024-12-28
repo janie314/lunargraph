@@ -108,9 +108,13 @@ module Lunargraph
         end
 
         def node_range node
-          st = Position.new(node.first_lineno - 1, node.first_column)
-          en = Position.new(node.last_lineno - 1, node.last_column)
-          Range.new(st, en)
+          if node.nil?
+            nil
+          else
+            st = Position.new(node.first_lineno - 1, node.first_column)
+            en = Position.new(node.last_lineno - 1, node.last_column)
+            Range.new(st, en)
+          end
         end
 
         def recipient_node tree
