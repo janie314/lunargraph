@@ -1,18 +1,18 @@
-describe Solargraph::Diagnostics::UpdateErrors do
+describe Lunargraph::Diagnostics::UpdateErrors do
   it "detects repaired lines" do
-    api_map = Solargraph::ApiMap.new
-    orig = Solargraph::Source.load_string('foo', 'test.rb')
-    diagnoser = Solargraph::Diagnostics::UpdateErrors.new
+    api_map = Lunargraph::ApiMap.new
+    orig = Lunargraph::Source.load_string("foo", "test.rb")
+    diagnoser = described_class.new
     result = diagnoser.diagnose(orig, api_map)
     expect(result.length).to eq(0)
-    updater = Solargraph::Source::Updater.new('test.rb', 2, [
-      Solargraph::Source::Change.new(
-        Solargraph::Range.from_to(0, 3, 0, 3),
-        '.'
+    updater = Lunargraph::Source::Updater.new("test.rb", 2, [
+      Lunargraph::Source::Change.new(
+        Lunargraph::Range.from_to(0, 3, 0, 3),
+        "."
       )
     ])
     source = orig.synchronize(updater)
-    diagnoser = Solargraph::Diagnostics::UpdateErrors.new
+    diagnoser = described_class.new
     result = diagnoser.diagnose(source, api_map)
     expect(result.length).to eq(1)
   end

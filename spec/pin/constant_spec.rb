@@ -1,24 +1,24 @@
-describe Solargraph::Pin::Constant do
+describe Lunargraph::Pin::Constant do
   it "resolves constant paths" do
-    source = Solargraph::Source.new(%(
+    source = Lunargraph::Source.new(%(
       class Foo
         BAR = 'bar'
       end
     ))
-    map = Solargraph::SourceMap.map(source)
-    pin = map.pins.select{|pin| pin.name == 'BAR'}.first
-    expect(pin.path).to eq('Foo::BAR')
+    map = Lunargraph::SourceMap.map(source)
+    pin = map.pins.find { |pin| pin.name == "BAR" }
+    expect(pin.path).to eq("Foo::BAR")
   end
 
   it "is a constant kind" do
-    source = Solargraph::Source.new(%(
+    source = Lunargraph::Source.new(%(
       class Foo
         BAR = 'bar'
       end
     ))
-    map = Solargraph::SourceMap.map(source)
-    pin = map.pins.select{|pin| pin.name == 'BAR'}.first
-    expect(pin.completion_item_kind).to eq(Solargraph::LanguageServer::CompletionItemKinds::CONSTANT)
-    expect(pin.symbol_kind).to eq(Solargraph::LanguageServer::SymbolKinds::CONSTANT)
+    map = Lunargraph::SourceMap.map(source)
+    pin = map.pins.find { |pin| pin.name == "BAR" }
+    expect(pin.completion_item_kind).to eq(Lunargraph::LanguageServer::CompletionItemKinds::CONSTANT)
+    expect(pin.symbol_kind).to eq(Lunargraph::LanguageServer::SymbolKinds::CONSTANT)
   end
 end

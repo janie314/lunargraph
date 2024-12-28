@@ -1,33 +1,33 @@
 # frozen_string_literal: true
 
-describe Solargraph::Diagnostics::Rubocop do
-  it 'diagnoses input' do
-    source = Solargraph::Source.new(%(
+describe Lunargraph::Diagnostics::Rubocop do
+  it "diagnoses input" do
+    source = Lunargraph::Source.new(%(
       class Foo
         def bar
         end
       end
       foo = Foo.new
-    ), 'file.rb')
+    ), "file.rb")
 
-    rubocop = Solargraph::Diagnostics::Rubocop.new
+    rubocop = described_class.new
     result = rubocop.diagnose(source, nil)
     expect(result).to be_a(Array)
   end
 
-  it 'handles validation errors' do
-    file = File.realpath(File.join('spec', 'fixtures', 'rubocop-validation-error', 'app.rb'))
-    source = Solargraph::Source.load(file)
-    rubocop = Solargraph::Diagnostics::Rubocop.new
+  it "handles validation errors" do
+    file = File.realpath(File.join("spec", "fixtures", "rubocop-validation-error", "app.rb"))
+    source = Lunargraph::Source.load(file)
+    rubocop = described_class.new
     expect {
       rubocop.diagnose(source, nil)
-    }.to raise_error(Solargraph::DiagnosticsError)
+    }.to raise_error(Lunargraph::DiagnosticsError)
   end
 
-  it 'calculates ranges' do
-    file = File.realpath(File.join('spec', 'fixtures', 'rubocop-unused-variable-error', 'app.rb'))
-    source = Solargraph::Source.load(file)
-    rubocop = Solargraph::Diagnostics::Rubocop.new
+  it "calculates ranges" do
+    file = File.realpath(File.join("spec", "fixtures", "rubocop-unused-variable-error", "app.rb"))
+    source = Lunargraph::Source.load(file)
+    rubocop = described_class.new
     results = rubocop.diagnose(source, nil)
 
     expect(results).to be_one

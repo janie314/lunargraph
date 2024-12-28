@@ -1,4 +1,4 @@
-string = <<~SQL
+<<~SQL
   delete from place_features where
     feature_id in (1, 2) -- some comment
     and

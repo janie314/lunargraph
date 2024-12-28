@@ -1,13 +1,13 @@
-describe Solargraph::Pin::LocalVariable do
+describe Lunargraph::Pin::LocalVariable do
   it "merges presence changes" do
-    map1 = Solargraph::SourceMap.load_string(%(
+    map1 = Lunargraph::SourceMap.load_string(%(
       class Foo
         foo = 'foo'
         @foo = foo
       end
     ))
     pin1 = map1.locals.first
-    map2 = Solargraph::SourceMap.load_string(%(
+    map2 = Lunargraph::SourceMap.load_string(%(
       class Foo
         @more = 'more'
         foo = 'foo'
@@ -19,13 +19,13 @@ describe Solargraph::Pin::LocalVariable do
   end
 
   it "does not merge namespace changes" do
-    map1 = Solargraph::SourceMap.load_string(%(
+    map1 = Lunargraph::SourceMap.load_string(%(
       class Foo
         foo = 'foo'
       end
     ))
     pin1 = map1.locals.first
-    map2 = Solargraph::SourceMap.load_string(%(
+    map2 = Lunargraph::SourceMap.load_string(%(
       class Bar
         foo = 'foo'
       end

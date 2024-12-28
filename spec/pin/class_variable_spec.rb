@@ -1,6 +1,6 @@
-# describe Solargraph::Pin::ClassVariable do
+# describe Lunargraph::Pin::ClassVariable do
 #   it "always has class scope" do
-#     source = Solargraph::Source.load_string(%(
+#     source = Lunargraph::Source.load_string(%(
 #       class Foo
 #         def bar
 #           @@bar = 'bar'

@@ -1,5 +1,5 @@
 class AdapterTester
-  include Solargraph::LanguageServer::Transport::Adapter
+  include Lunargraph::LanguageServer::Transport::Adapter
   attr_reader :host
 
   def write data
@@ -13,11 +13,11 @@ class AdapterTester
   end
 end
 
-describe Solargraph::LanguageServer::Transport::Adapter do
+describe Lunargraph::LanguageServer::Transport::Adapter do
   it "creates a host on open" do
     tester = AdapterTester.new
     tester.opening
-    expect(tester.host).to be_a(Solargraph::LanguageServer::Host)
+    expect(tester.host).to be_a(Lunargraph::LanguageServer::Host)
     expect(tester.host).not_to be_stopped
   end
 

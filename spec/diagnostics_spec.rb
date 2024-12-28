@@ -1,7 +1,7 @@
-describe Solargraph::Diagnostics do
+describe Lunargraph::Diagnostics do
   it "registers reporters" do
-    Solargraph::Diagnostics.register 'base', Solargraph::Diagnostics::Base
-    expect(Solargraph::Diagnostics.reporters).to include('base')
-    expect(Solargraph::Diagnostics.reporter('base')).to be(Solargraph::Diagnostics::Base)
+    described_class.register "base", Lunargraph::Diagnostics::Base
+    expect(described_class.reporters).to include("base")
+    expect(described_class.reporter("base")).to be(Lunargraph::Diagnostics::Base)
   end
 end

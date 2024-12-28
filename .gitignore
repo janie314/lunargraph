@@ -3,7 +3,7 @@
 .idea
 .vscode
 .yardoc
-.solargraph.yml
+.lunargraph.yml
 doc
 coverage
 /tmp/

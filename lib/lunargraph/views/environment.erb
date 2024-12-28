@@ -1,0 +1,58 @@
+<html>
+  <head>
+    <title>Lunargraph Environment</title>
+  </head>
+  <h1>
+    Lunargraph Environment Info
+  </h1>
+  <h2>
+    System
+  </h2>
+  <ul>
+    <li>
+      Platform: <%= RUBY_PLATFORM %>
+    </li>
+    <li>
+      Shell: <%= ENV['SHELL'] %>
+    </li>
+    <li>
+      Ruby Version: <%= RUBY_VERSION %>
+    </li>
+    <li>
+      RuboCop Version: <%= RuboCop::Version::STRING %>
+    </li>
+  </ul>
+  <h2>
+    Lunargraph
+  </h2>
+  <ul>
+    <li>
+      Lunargraph Version: <%= Lunargraph::VERSION %>
+    </li>
+    <li>
+      Core Documentation Version: N/A <%# @todo Fix %>
+    </li>
+    <li>
+      Core Cache Directory: N/A <%# @todo Fix %>
+    </li>
+    <% unless Lunargraph::Parser.rubyvm? %>
+      <li>
+        Parser Target Version: <%= Lunargraph::Parser.version %>
+      </li>
+    <% end %>
+    <li>
+      Using Bundler: <%= ENV.key?('BUNDLE_BIN_PATH') %>
+    </li>
+  </ul>
+  <h2>
+    Project
+  </h2>
+  <ul>
+    <li>
+      Config: <%= config %>
+    </li>
+    <li>
+      Workspace folders: <%= folders %>
+    </li>
+  </ul>
+</html>

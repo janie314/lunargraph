@@ -1,15 +1,15 @@
-describe Solargraph::TypeChecker do
-  it 'does not raise errors checking unparsed sources' do
+describe Lunargraph::TypeChecker do
+  it "does not raise errors checking unparsed sources" do
     expect {
-      checker = Solargraph::TypeChecker.load_string(%(
+      checker = described_class.load_string(%(
         foo{
       ))
       checker.problems
     }.not_to raise_error
   end
 
-  it 'ignores tagged problems' do
-    checker = Solargraph::TypeChecker.load_string(%(
+  it "ignores tagged problems" do
+    checker = described_class.load_string(%(
       NotAClass
 
       # @sg-ignore

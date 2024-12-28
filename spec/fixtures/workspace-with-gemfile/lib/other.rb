@@ -1,4 +1,4 @@
-require 'thing'
+require "thing"
 
 class Other; end
 

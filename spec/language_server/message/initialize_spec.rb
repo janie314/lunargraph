@@ -1,18 +1,18 @@
-describe Solargraph::LanguageServer::Message::Initialize do
+describe Lunargraph::LanguageServer::Message::Initialize do
   it "prepares workspace folders" do
-    host = Solargraph::LanguageServer::Host.new
-    dir = File.realpath(File.join('spec', 'fixtures', 'workspace'))
-    init = Solargraph::LanguageServer::Message::Initialize.new(host, {
-      'params' => {
-        'capabilities' => {
-          'workspace' => {
-            'workspaceFolders' => true
+    host = Lunargraph::LanguageServer::Host.new
+    dir = File.realpath(File.join("spec", "fixtures", "workspace"))
+    init = described_class.new(host, {
+      "params" => {
+        "capabilities" => {
+          "workspace" => {
+            "workspaceFolders" => true
           }
         },
-        'workspaceFolders' => [
+        "workspaceFolders" => [
           {
-            'uri' => Solargraph::LanguageServer::UriHelpers.file_to_uri(dir),
-            'name' => 'workspace'
+            "uri" => Lunargraph::LanguageServer::UriHelpers.file_to_uri(dir),
+            "name" => "workspace"
           }
         ]
       }
@@ -22,16 +22,16 @@ describe Solargraph::LanguageServer::Message::Initialize do
   end
 
   it "prepares rootUri as a workspace" do
-    host = Solargraph::LanguageServer::Host.new
-    dir = File.realpath(File.join('spec', 'fixtures', 'workspace'))
-    init = Solargraph::LanguageServer::Message::Initialize.new(host, {
-      'params' => {
-        'capabilities' => {
-          'workspace' => {
-            'workspaceFolders' => true
+    host = Lunargraph::LanguageServer::Host.new
+    dir = File.realpath(File.join("spec", "fixtures", "workspace"))
+    init = described_class.new(host, {
+      "params" => {
+        "capabilities" => {
+          "workspace" => {
+            "workspaceFolders" => true
           }
         },
-        'rootUri' => Solargraph::LanguageServer::UriHelpers.file_to_uri(dir)
+        "rootUri" => Lunargraph::LanguageServer::UriHelpers.file_to_uri(dir)
       }
     })
     init.process
@@ -39,16 +39,16 @@ describe Solargraph::LanguageServer::Message::Initialize do
   end
 
   it "prepares rootPath as a workspace" do
-    host = Solargraph::LanguageServer::Host.new
-    dir = File.realpath(File.join('spec', 'fixtures', 'workspace'))
-    init = Solargraph::LanguageServer::Message::Initialize.new(host, {
-      'params' => {
-        'capabilities' => {
-          'workspace' => {
-            'workspaceFolders' => true
+    host = Lunargraph::LanguageServer::Host.new
+    dir = File.realpath(File.join("spec", "fixtures", "workspace"))
+    init = described_class.new(host, {
+      "params" => {
+        "capabilities" => {
+          "workspace" => {
+            "workspaceFolders" => true
           }
         },
-        'rootPath' => dir
+        "rootPath" => dir
       }
     })
     init.process

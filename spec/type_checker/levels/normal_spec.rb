@@ -1,10 +1,10 @@
-describe Solargraph::TypeChecker do
-  context 'normal level' do
+describe Lunargraph::TypeChecker do
+  context "normal level" do
     def type_checker(code)
-      Solargraph::TypeChecker.load_string(code, 'test.rb', :normal)
+      Lunargraph::TypeChecker.load_string(code, "test.rb", :normal)
     end
 
-    it 'ignores missing return tags' do
+    it "ignores missing return tags" do
       checker = type_checker(%(
         class Foo
           def bar; end
@@ -13,7 +13,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores void return tags' do
+    it "ignores void return tags" do
       checker = type_checker(%(
         class Foo
           # @return [void]
@@ -25,7 +25,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates existing return tags' do
+    it "validates existing return tags" do
       checker = type_checker(%(
         class Foo
           # @return [String]
@@ -37,7 +37,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores tagged return types with empty method bodies' do
+    it "ignores tagged return types with empty method bodies" do
       checker = type_checker(%(
         class Foo
           # @return [String]
@@ -47,7 +47,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores mismatched return tags' do
+    it "ignores mismatched return tags" do
       checker = type_checker(%(
         class Foo
           # @return [Integer]
@@ -59,7 +59,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores undefined inferred return types' do
+    it "ignores undefined inferred return types" do
       checker = type_checker(%(
         class Foo
           # @return [Integer]
@@ -71,7 +71,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates inherited return tags' do
+    it "validates inherited return tags" do
       checker = type_checker(%(
         class Sup
           # @return [String]
@@ -89,7 +89,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates inherited return tags from mixins' do
+    it "validates inherited return tags from mixins" do
       checker = type_checker(%(
         module Mixin
           # @return [String]
@@ -109,7 +109,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores mismatched inherited return tags' do
+    it "ignores mismatched inherited return tags" do
       checker = type_checker(%(
         class Sup
           # @return [String]
@@ -127,7 +127,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'resolves param tags' do
+    it "resolves param tags" do
       checker = type_checker(%(
         class Foo
           # @param arg [String]
@@ -138,7 +138,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports unresolved param tags' do
+    it "reports unresolved param tags" do
       checker = type_checker(%(
         class Foo
           # @param arg [UnknownClass]
@@ -147,17 +147,17 @@ describe Solargraph::TypeChecker do
         end
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Unresolved type')
+      expect(checker.problems.first.message).to include("Unresolved type")
     end
 
-    it 'ignores variables without type tags' do
+    it "ignores variables without type tags" do
       checker = type_checker(%(
         x = foo
       ))
       expect(checker.problems).to be_empty
     end
 
-    it 'reports unresolved return tags' do
+    it "reports unresolved return tags" do
       checker = type_checker(%(
         class Foo
           # @return [UnknownClass]
@@ -165,19 +165,19 @@ describe Solargraph::TypeChecker do
         end
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Unresolved')
+      expect(checker.problems.first.message).to include("Unresolved")
     end
 
-    it 'reports unresolved return tags in root namespace' do
+    it "reports unresolved return tags in root namespace" do
       checker = type_checker(%(
         # @return [UnknownClass]
         def bar; end
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Unresolved')
+      expect(checker.problems.first.message).to include("Unresolved")
     end
 
-    it 'validates existing type tags' do
+    it "validates existing type tags" do
       checker = type_checker(%(
         # @type [Integer]
         x = 100
@@ -185,7 +185,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores mismatched type tags' do
+    it "ignores mismatched type tags" do
       checker = type_checker(%(
         # @type [Integer]
         x = 'string'
@@ -193,7 +193,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores undefined inferred variable types' do
+    it "ignores undefined inferred variable types" do
       checker = type_checker(%(
         # @type [Integer]
         x = unknown_method
@@ -201,23 +201,23 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports unresolved return tags' do
+    it "reports unresolved return tags" do
       checker = type_checker(%(
         # @type [UnknownClass]
         x = unknown_method
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Unresolved')
+      expect(checker.problems.first.message).to include("Unresolved")
     end
 
-    it 'ignores unresolved method calls' do
+    it "ignores unresolved method calls" do
       checker = type_checker(%(
         unknown_method.another_unknown_method
       ))
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores variable types with undefined inferences from external sources' do
+    it "ignores variable types with undefined inferences from external sources" do
       # @todo This test uses kramdown-parser-gfm because it's a gem dependency known to
       #   lack typed methods. A better test wouldn't depend on the state of
       #   vendored code.
@@ -229,7 +229,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores undefined argument types' do
+    it "ignores undefined argument types" do
       checker = type_checker(%(
         class Foo
           # @param baz [Integer]
@@ -240,7 +240,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores untyped attributes' do
+    it "ignores untyped attributes" do
       checker = type_checker(%(
         class Foo
           attr_accessor :bar
@@ -249,7 +249,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts one of several param types' do
+    it "accepts one of several param types" do
       checker = type_checker(%(
         class Foo
           # @param baz [String, Integer]
@@ -262,7 +262,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates keyword params' do
+    it "validates keyword params" do
       checker = type_checker(%(
         class Foo
           # @param baz [String]
@@ -274,7 +274,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates optional keyword params' do
+    it "validates optional keyword params" do
       checker = type_checker(%(
         class Foo
           # @param baz [String]
@@ -286,7 +286,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates mixed arguments and kwargs' do
+    it "validates mixed arguments and kwargs" do
       checker = type_checker(%(
         class Foo
           # @param baz [String]
@@ -300,7 +300,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates multiple optional kwargs' do
+    it "validates multiple optional kwargs" do
       checker = type_checker(%(
         class Foo
           # @param baz [String]
@@ -313,7 +313,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores untagged kwarg params' do
+    it "ignores untagged kwarg params" do
       checker = type_checker(%(
         class Foo
           # @param quz [String]
@@ -325,7 +325,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates param duck types' do
+    it "validates param duck types" do
       checker = type_checker(%(
         class Foo
           # @param baz [#to_s]
@@ -337,7 +337,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates return duck types' do
+    it "validates return duck types" do
       checker = type_checker(%(
         class Foo
           # @return [#to_s]
@@ -347,7 +347,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates untagged kwrestargs' do
+    it "validates untagged kwrestargs" do
       checker = type_checker(%(
         class Foo
           def bar **baz
@@ -358,7 +358,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates tagged kwrestargs' do
+    it "validates tagged kwrestargs" do
       checker = type_checker(%(
         class Foo
           # @param one [String]
@@ -371,7 +371,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates tagged kwoptarg params' do
+    it "validates tagged kwoptarg params" do
       checker = type_checker(%(
         class Foo
           # @param foo [String]
@@ -381,7 +381,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates tagged kwarg params' do
+    it "validates tagged kwarg params" do
       checker = type_checker(%(
         class Foo
           # @param foo [String]
@@ -391,7 +391,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates untagged restarg params' do
+    it "validates untagged restarg params" do
       checker = type_checker(%(
         class Foo
           def bar(*args); end
@@ -400,7 +400,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores undocumented blocks' do
+    it "ignores undocumented blocks" do
       checker = type_checker(%(
         class Foo
           def bar
@@ -414,7 +414,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores parameterized blocks' do
+    it "ignores parameterized blocks" do
       checker = type_checker(%(
         class Foo
           def bar &block
@@ -427,7 +427,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores trailing optional hash parameters without tags' do
+    it "ignores trailing optional hash parameters without tags" do
       checker = type_checker(%(
         class Foo
           def bar opts = {}
@@ -438,7 +438,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores mismatched boolean return types' do
+    it "ignores mismatched boolean return types" do
       checker = type_checker(%(
         class Foo
           # @return [Boolean]
@@ -450,7 +450,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'qualifies param tags in declaration context' do
+    it "qualifies param tags in declaration context" do
       checker = type_checker(%(
         module Container
           class First
@@ -469,7 +469,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores untagged parameters' do
+    it "ignores untagged parameters" do
       checker = type_checker(%(
         class Foo
           def bar(baz); end
@@ -478,25 +478,25 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports too many arguments' do
+    it "reports too many arguments" do
       checker = type_checker(%(
         def foo; end
         foo(1)
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Too many arguments')
+      expect(checker.problems.first.message).to include("Too many arguments")
     end
 
-    it 'reports not enough arguments' do
+    it "reports not enough arguments" do
       checker = type_checker(%(
         def foo(bar); end
         foo()
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Not enough arguments')
+      expect(checker.problems.first.message).to include("Not enough arguments")
     end
 
-    it 'accepts kwargs with explicit blockargs' do
+    it "accepts kwargs with explicit blockargs" do
       checker = type_checker(%(
         def foo(bar:, &block); end
         foo(bar: 'bar', &block)
@@ -504,7 +504,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts kwargs with implicit blockargs' do
+    it "accepts kwargs with implicit blockargs" do
       checker = type_checker(%(
         def foo(bar:); end
         foo(bar: 'bar', &block)
@@ -512,7 +512,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'ignores restarg arguments' do
+    it "ignores restarg arguments" do
       checker = type_checker(%(
         def foo(*bar); end
         foo(1, 2, 3)
@@ -520,7 +520,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports missing required keyword arguments' do
+    it "reports missing required keyword arguments" do
       checker = type_checker(%(
         def foo(bar:); end
         foo()
@@ -528,7 +528,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_one
     end
 
-    it 'ignores calls sent as keyword arguments' do
+    it "ignores calls sent as keyword arguments" do
       checker = type_checker(%(
         def foo(one: '', two: ''); end
         hash = {one: 'one', two: 'two'}
@@ -537,7 +537,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates restarg arguments with optional kw parameters' do
+    it "validates restarg arguments with optional kw parameters" do
       checker = type_checker(%(
         def foo(*bar, baz: true); end
         foo(1, 2, 3)
@@ -545,7 +545,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates optional argument arity' do
+    it "validates optional argument arity" do
       checker = type_checker(%(
         def foo(bar, baz, quz = true); end
         foo(1, 2, 3)
@@ -553,24 +553,24 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports too many optional arguments' do
+    it "reports too many optional arguments" do
       checker = type_checker(%(
         def foo(bar, baz, quz = true); end
         foo(1, 2, 3, 4)
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Too many arguments')
+      expect(checker.problems.first.message).to include("Too many arguments")
     end
 
-    it 'reports arity problems for core methods' do
+    it "reports arity problems for core methods" do
       checker = type_checker(%(
         File.atime()
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Not enough arguments')
+      expect(checker.problems.first.message).to include("Not enough arguments")
     end
 
-    it 'checks overloads for valid arity' do
+    it "checks overloads for valid arity" do
       checker = type_checker(%[
         class Foo
           # @overload bar(one, two)
@@ -583,15 +583,15 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'assumes restarg for `args` parameters in core' do
+    it "assumes restarg for `args` parameters in core" do
       checker = type_checker(%(
         File.join('foo', 'bar')
       ))
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies block passes in arguments' do
-      checker = Solargraph::TypeChecker.load_string(%(
+    it "verifies block passes in arguments" do
+      checker = described_class.load_string(%(
         class Foo
           def map(&block)
             block.call(100)
@@ -601,12 +601,12 @@ describe Solargraph::TypeChecker do
             map(&:to_s)
           end
         end
-      ), 'test.rb')
+      ), "test.rb")
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies args and block passes' do
-      checker = Solargraph::TypeChecker.load_string(%(
+    it "verifies args and block passes" do
+      checker = described_class.load_string(%(
         class Foo
           def map(x, &block)
             block.call(x)
@@ -616,34 +616,34 @@ describe Solargraph::TypeChecker do
             map(x, &:to_s)
           end
         end
-      ), 'test.rb')
+      ), "test.rb")
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies extra block passes in chained calls' do
-      checker = Solargraph::TypeChecker.load_string(%(
+    it "verifies extra block passes in chained calls" do
+      checker = described_class.load_string(%(
         ''.to_s(&:nil?)
-      ), 'test.rb')
+      ), "test.rb")
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies extra block variables in calls with args' do
-      checker = Solargraph::TypeChecker.load_string(%(
+    it "verifies extra block variables in calls with args" do
+      checker = described_class.load_string(%(
         def foo(bar); end
         foo(1, &block)
-      ), 'test.rb')
+      ), "test.rb")
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies splats passed to arguments' do
-      checker = Solargraph::TypeChecker.load_string(%(
+    it "verifies splats passed to arguments" do
+      checker = described_class.load_string(%(
         def foo(bar, baz); end
         foo(*splat)
-      ), 'test.rb')
+      ), "test.rb")
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies arity of chained super calls' do
+    it "verifies arity of chained super calls" do
       checker = type_checker(%(
         class Foo
           def something arg
@@ -658,7 +658,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports invalid arity of chained super calls' do
+    it "reports invalid arity of chained super calls" do
       checker = type_checker(%(
         class Foo
           def something
@@ -671,10 +671,10 @@ describe Solargraph::TypeChecker do
         end
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Too many arguments')
+      expect(checker.problems.first.message).to include("Too many arguments")
     end
 
-    it 'verifies arity of chained zsuper calls' do
+    it "verifies arity of chained zsuper calls" do
       checker = type_checker(%(
         class Foo
           def something arg
@@ -689,7 +689,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies arity of chained zsuper calls with restargs' do
+    it "verifies arity of chained zsuper calls with restargs" do
       checker = type_checker(%(
         class Foo
           def something arg1, arg2
@@ -704,7 +704,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'verifies arity of chained zsuper calls with kwargs' do
+    it "verifies arity of chained zsuper calls with kwargs" do
       checker = type_checker(%(
         class Foo
           def something arg1, arg2:
@@ -719,7 +719,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports invalid arity of chained zsuper calls' do
+    it "reports invalid arity of chained zsuper calls" do
       checker = type_checker(%(
         class Foo
           def something arg
@@ -732,10 +732,10 @@ describe Solargraph::TypeChecker do
         end
       ))
       expect(checker.problems).to be_one
-      expect(checker.problems.first.message).to include('Not enough arguments')
+      expect(checker.problems.first.message).to include("Not enough arguments")
     end
 
-    it 'verifies splatted kwargs' do
+    it "verifies splatted kwargs" do
       checker = type_checker(%(
         def xxx(from:, to:); end
         xxx(**{from: 1, to: 2})
@@ -743,7 +743,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'reports splatted kwargs with missing arguments' do
+    it "reports splatted kwargs with missing arguments" do
       checker = type_checker(%(
         def xxx(from:, to:); end
         xxx(**{from: 1})
@@ -751,7 +751,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_one
     end
 
-    it 'ignores splatted kwargs' do
+    it "ignores splatted kwargs" do
       checker = type_checker(%(
         def xxx(from:, to:); end
         params = {from: 1, to: 2}
@@ -760,7 +760,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'recognizes splatted kwargs' do
+    it "recognizes splatted kwargs" do
       checker = type_checker(%(
         def xxx(from: nil, to: nil)
         end
@@ -772,7 +772,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'differentiates local variables from methods' do
+    it "differentiates local variables from methods" do
       checker = type_checker(%(
         class Example
           def foo(bar)
@@ -788,17 +788,17 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'allows Kernel#raise without arguments' do
+    it "allows Kernel#raise without arguments" do
       # This is necessary because the core docs erroneously define the
       # signature as `Kernel#raise(*, _)`
-      # See https://github.com/castwide/solargraph/issues/418
+      # See https://github.com/castwide/lunargraph/issues/418
       checker = type_checker(%(
         raise
       ))
       expect(checker.problems).to be_empty
     end
 
-    it 'handles mixed splats' do
+    it "handles mixed splats" do
       checker = type_checker(%(
         class Foo
           def self.make(arg, *args, **kwargs)
@@ -812,7 +812,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'handles kwrestargs passed to methods without kwsplats' do
+    it "handles kwrestargs passed to methods without kwsplats" do
       checker = type_checker(%(
         def foo(arg1:, arg2:, arg3:, arg4: false)
         end
@@ -826,7 +826,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'validates constant aliases for namespaces' do
+    it "validates constant aliases for namespaces" do
       checker = type_checker(%(
         class Foo; end
         Bar = Foo
@@ -839,7 +839,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts anonymous splats for instance methods' do
+    it "accepts anonymous splats for instance methods" do
       checker = type_checker(%(
         def foo(*); end
         foo('bar')
@@ -847,7 +847,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts anonymous splats for class methods' do
+    it "accepts anonymous splats for class methods" do
       checker = type_checker(%(
         class Foo
           def self.foo(*); end
@@ -857,7 +857,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts Hash#[] calls for parameterized Hash types' do
+    it "accepts Hash#[] calls for parameterized Hash types" do
       checker = type_checker(%(
         # @type [Hash{String => String}]
         x = {}
@@ -866,7 +866,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts namespace aliases for return tags' do
+    it "accepts namespace aliases for return tags" do
       checker = type_checker(%(
         # @return [Mutex]
         def get_a_mutex; end
@@ -874,7 +874,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts namespace aliases for type tags' do
+    it "accepts namespace aliases for type tags" do
       checker = type_checker(%(
         # @type [Mutex]
         x = get_a_mutex
@@ -882,7 +882,7 @@ describe Solargraph::TypeChecker do
       expect(checker.problems).to be_empty
     end
 
-    it 'accepts namespace aliases from nested namespaces' do
+    it "accepts namespace aliases from nested namespaces" do
       checker = type_checker(%(
         class Foo
           # @return [Mutex]

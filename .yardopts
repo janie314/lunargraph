@@ -1,2 +1,2 @@
 lib/**/*.rb
--e lib/yard-solargraph.rb
+-e lib/yard-lunargraph.rb

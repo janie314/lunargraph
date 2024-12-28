@@ -1,11 +1,11 @@
-describe Solargraph::LanguageServer::Message do
+describe Lunargraph::LanguageServer::Message do
   it "returns MethodNotFound for unregistered methods" do
-    msg = Solargraph::LanguageServer::Message.select 'notARealMethod'
-    expect(msg).to be(Solargraph::LanguageServer::Message::MethodNotFound)
+    msg = described_class.select "notARealMethod"
+    expect(msg).to be(Lunargraph::LanguageServer::Message::MethodNotFound)
   end
 
   it "returns MethodNotImplemented for unregistered $ methods" do
-    msg = Solargraph::LanguageServer::Message.select '$/notARealMethod'
-    expect(msg).to be(Solargraph::LanguageServer::Message::MethodNotImplemented)
+    msg = described_class.select "$/notARealMethod"
+    expect(msg).to be(Lunargraph::LanguageServer::Message::MethodNotImplemented)
   end
 end

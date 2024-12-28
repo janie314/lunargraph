@@ -1,12 +1,12 @@
-describe Solargraph::Pin::Documenting do
+describe Lunargraph::Pin::Documenting do
   let(:object) {
     Class.new do
-      include Solargraph::Pin::Documenting
+      include Lunargraph::Pin::Documenting
       attr_accessor :docstring
     end.new
   }
 
-  it 'parses indented code blocks' do
+  it "parses indented code blocks" do
     object.docstring = YARD::Docstring.new(%(Method overview
 
 Example code:
@@ -16,8 +16,8 @@ Example code:
     expect(object.documentation).to include("```ruby\nclass Foo; end\n```")
   end
 
-  it 'allows unclosed tags' do
-    object.docstring = YARD::Docstring.new('comment <tt>code')
-    expect(object.documentation).to include('comment `code`')
+  it "allows unclosed tags" do
+    object.docstring = YARD::Docstring.new("comment <tt>code")
+    expect(object.documentation).to include("comment `code`")
   end
 end

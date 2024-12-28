@@ -1,18 +1,18 @@
-describe Solargraph::Source do
+describe Lunargraph::Source do
   it "parses code" do
-    code = 'class Foo;def bar;end;end'
+    code = "class Foo;def bar;end;end"
     source = described_class.new(code)
     expect(source.code).to eq(code)
-    expect(Solargraph::Parser.is_ast_node?(source.node)).to be_truthy
+    expect(Lunargraph::Parser).to be_is_ast_node(source.node)
     expect(source).to be_parsed
   end
 
   it "fixes invalid code" do
-    code = 'class Foo; def bar; x.'
+    code = "class Foo; def bar; x."
     source = described_class.new(code)
     expect(source.code).to eq(code)
     # @todo Unparsed code is resulting in nil nodes, maybe temporarily.
-    #   See Solargraph::Source#initialize
+    #   See Lunargraph::Source#initialize
     # expect(source.node).to be_a(Parser::AST::Node)
     expect(source).not_to be_parsed
   end
@@ -25,14 +25,14 @@ describe Solargraph::Source do
       end
     )
     source = described_class.new(code)
-    range = Solargraph::Range.new(Solargraph::Position.new(2, 8), Solargraph::Position.new(2, 15))
-    expect(source.at(range)).to eq('def bar')
+    range = Lunargraph::Range.new(Lunargraph::Position.new(2, 8), Lunargraph::Position.new(2, 15))
+    expect(source.at(range)).to eq("def bar")
   end
 
   it "finds nodes" do
     # @todo This test is specific to Parser and breaks with RubyVM.
-    next if Solargraph::Parser.rubyvm?
-    code = 'class Foo;def bar;end;end'
+    next if Lunargraph::Parser.rubyvm?
+    code = "class Foo;def bar;end;end"
     source = described_class.new(code)
     node = source.node_at(0, 0)
     expect(node.type).to eq(:class)
@@ -41,35 +41,35 @@ describe Solargraph::Source do
   end
 
   it "synchronizes from incremental updates" do
-    code = 'class Foo;def bar;end;end'
+    code = "class Foo;def bar;end;end"
     source = described_class.new(code)
-    updater = Solargraph::Source::Updater.new(
-      nil, 0, [Solargraph::Source::Change.new(
-        Solargraph::Range.new(
-          Solargraph::Position.new(0, 9),
-          Solargraph::Position.new(0, 9)
+    updater = Lunargraph::Source::Updater.new(
+      nil, 0, [Lunargraph::Source::Change.new(
+        Lunargraph::Range.new(
+          Lunargraph::Position.new(0, 9),
+          Lunargraph::Position.new(0, 9)
         ),
-        'd'
+        "d"
       )]
     )
     changed = source.synchronize(updater)
-    expect(changed.code).to start_with('class Food;')
+    expect(changed.code).to start_with("class Food;")
     # @todo This test is specific to Parser and breaks with RubyVM.
-    next if Solargraph::Parser.rubyvm?
+    next if Lunargraph::Parser.rubyvm?
     expect(changed.node.children[0].children[1]).to eq(:Food)
   end
 
   it "synchronizes from full updates" do
-    code1 = 'class Foo;end'
-    code2 = 'class Bar;end'
+    code1 = "class Foo;end"
+    code2 = "class Bar;end"
     source = described_class.new(code1)
-    updater = Solargraph::Source::Updater.new(nil, 0, [
-      Solargraph::Source::Change.new(nil, code2)
+    updater = Lunargraph::Source::Updater.new(nil, 0, [
+      Lunargraph::Source::Change.new(nil, code2)
     ])
     changed = source.synchronize(updater)
     expect(changed.code).to eq(code2)
     # @todo This test is specific to Parser and breaks with RubyVM.
-    next if Solargraph::Parser.rubyvm?
+    next if Lunargraph::Parser.rubyvm?
     expect(changed.node.children[0].children[1]).to eq(:Bar)
   end
 
@@ -81,13 +81,13 @@ describe Solargraph::Source do
       end
     )
     source = described_class.new(code)
-    updater = Solargraph::Source::Updater.new(
-      nil, 0, [Solargraph::Source::Change.new(
-        Solargraph::Range.new(
-          Solargraph::Position.new(3, 0),
-          Solargraph::Position.new(3, 1)
+    updater = Lunargraph::Source::Updater.new(
+      nil, 0, [Lunargraph::Source::Change.new(
+        Lunargraph::Range.new(
+          Lunargraph::Position.new(3, 0),
+          Lunargraph::Position.new(3, 1)
         ),
-        '@'
+        "@"
       )]
     )
     changed = source.synchronize(updater)
@@ -96,10 +96,10 @@ describe Solargraph::Source do
   end
 
   it "flags irreparable updates" do
-    code = 'class Foo;def bar;end;end'
+    code = "class Foo;def bar;end;end"
     source = described_class.new(code)
-    updater = Solargraph::Source::Updater.new(nil, 0, [
-      Solargraph::Source::Change.new(nil, 'end;end')
+    updater = Lunargraph::Source::Updater.new(nil, 0, [
+      Lunargraph::Source::Change.new(nil, "end;end")
     ])
     changed = source.synchronize(updater)
     expect(changed).to be_parsed
@@ -107,7 +107,7 @@ describe Solargraph::Source do
   end
 
   it "finds references" do
-    source = Solargraph::Source.load_string(%(
+    source = described_class.load_string(%(
       class Foo
         def bar
         end
@@ -118,19 +118,19 @@ describe Solargraph::Source do
       𐐀.bar
       𐐀.bar = 1
     ))
-    foos = source.references('Foo')
-    foobacks = foos.map{|f| source.at(f.range)}
-    expect(foobacks).to eq(['Foo', 'Foo'])
-    bars = source.references('bar')
-    barbacks = bars.map{|b| source.at(b.range)}
-    expect(barbacks).to eq(['bar', 'bar'])
-    assign_bars = source.references('bar=')
-    assign_barbacks = assign_bars.map{|b| source.at(b.range)}
-    expect(assign_barbacks).to eq(['bar=', 'bar ='])
+    foos = source.references("Foo")
+    foobacks = foos.map { |f| source.at(f.range) }
+    expect(foobacks).to eq(["Foo", "Foo"])
+    bars = source.references("bar")
+    barbacks = bars.map { |b| source.at(b.range) }
+    expect(barbacks).to eq(["bar", "bar"])
+    assign_bars = source.references("bar=")
+    assign_barbacks = assign_bars.map { |b| source.at(b.range) }
+    expect(assign_barbacks).to eq(["bar=", "bar ="])
   end
 
   it "allows escape sequences incompatible with UTF-8" do
-    source = Solargraph::Source.new('
+    source = described_class.new('
       x = " Un bUen café \x92"
       puts x
     ')
@@ -139,37 +139,37 @@ describe Solargraph::Source do
 
   it "fixes invalid byte sequences in UTF-8 encoding" do
     expect {
-      Solargraph::Source.load('spec/fixtures/invalid_byte.rb')
+      described_class.load("spec/fixtures/invalid_byte.rb")
     }.not_to raise_error
   end
 
   it "loads files with Unicode characters" do
     expect {
-      Solargraph::Source.load('spec/fixtures/unicode.rb')
+      described_class.load("spec/fixtures/unicode.rb")
     }.not_to raise_error
   end
 
   it "updates itself when code does not change" do
-    original = Solargraph::Source.load_string('x = y', 'test.rb')
-    updater = Solargraph::Source::Updater.new('test.rb', 1, [])
+    original = described_class.load_string("x = y", "test.rb")
+    updater = Lunargraph::Source::Updater.new("test.rb", 1, [])
     updated = original.synchronize(updater)
     expect(original).to be(updated)
     expect(updated.version).to eq(1)
   end
 
   it "handles unparseable code" do
-    source = Solargraph::Source.load_string(%(
+    source = described_class.load_string(%(
       100.times do |num|
     ))
     # @todo Unparseable code results in a nil node for now, but that could
-    #   change. See Solargraph::Source#initialize
+    #   change. See Lunargraph::Source#initialize
     expect(source.node).to be_nil
     expect(source.parsed?).to be(false)
   end
 
   it "finds foldable ranges" do
     # Of the 7 possible ranges, 2 are too short to be foldable
-    source = Solargraph::Source.load_string(%(
+    source = described_class.load_string(%(
 =begin
 Range 1
 =end
@@ -197,8 +197,8 @@ e = d # inline
     expect(source.folding_ranges.length).to eq(5)
   end
 
-  it 'folds multiline strings' do
-    source = Solargraph::Source.load_string(%(
+  it "folds multiline strings" do
+    source = described_class.load_string(%(
       a = 1
       b = 2
       c = 3
@@ -212,8 +212,8 @@ e = d # inline
     expect(source.folding_ranges.first.start.line).to eq(4)
   end
 
-  it 'folds multiline arrays' do
-    source = Solargraph::Source.load_string(%(
+  it "folds multiline arrays" do
+    source = described_class.load_string(%(
       a = 1
       b = 2
       c = 3
@@ -227,8 +227,8 @@ e = d # inline
     expect(source.folding_ranges.first.start.line).to eq(4)
   end
 
-  it 'folds multiline hashes' do
-    source = Solargraph::Source.load_string(%(
+  it "folds multiline hashes" do
+    source = described_class.load_string(%(
       a = 1
       b = 2
       c = 3
@@ -243,29 +243,29 @@ e = d # inline
   end
 
   it "returns unsynchronized sources for started synchronizations" do
-    source1 = Solargraph::Source.load_string('x = 1', 'test.rb')
-    source2 = source1.start_synchronize Solargraph::Source::Updater.new(
-      'test.rb',
+    source1 = described_class.load_string("x = 1", "test.rb")
+    source2 = source1.start_synchronize Lunargraph::Source::Updater.new(
+      "test.rb",
       2,
       [
-        Solargraph::Source::Change.new(
-          Solargraph::Range.from_to(0, 5, 0, 5),
-          '2'
+        Lunargraph::Source::Change.new(
+          Lunargraph::Range.from_to(0, 5, 0, 5),
+          "2"
         )
       ]
     )
-    expect(source2.code).to eq('x = 12')
+    expect(source2.code).to eq("x = 12")
     expect(source2).not_to be_synchronized
   end
 
   it "finishes synchronizations for unbalanced lines" do
-    source1 = Solargraph::Source.load_string('x = 1', 'test.rb')
-    source2 = source1.start_synchronize Solargraph::Source::Updater.new(
-      'test.rb',
+    source1 = described_class.load_string("x = 1", "test.rb")
+    source2 = source1.start_synchronize Lunargraph::Source::Updater.new(
+      "test.rb",
       2,
       [
-        Solargraph::Source::Change.new(
-          Solargraph::Range.from_to(0, 5, 0, 5),
+        Lunargraph::Source::Change.new(
+          Lunargraph::Range.from_to(0, 5, 0, 5),
           "\n2"
         )
       ]
@@ -275,8 +275,8 @@ e = d # inline
   end
 
   it "handles comment arrays that overlap lines" do
-    # Fixes negative argument error (castwide/solargraph#141)
-    source = Solargraph::Source.load_string(%(
+    # Fixes negative argument error (castwide/lunargraph#141)
+    source = described_class.load_string(%(
 =begin
 =end
 y = 1 #foo
@@ -288,7 +288,7 @@ y = 1 #foo
   end
 
   it "formats comments with multiple hash prefixes" do
-    source = Solargraph::Source.load_string(%(
+    source = described_class.load_string(%(
       ##
       # one
       # two
@@ -296,11 +296,11 @@ y = 1 #foo
     ))
     node = source.node_at(4, 7)
     comments = source.comments_for(node)
-    expect(comments.lines.map(&:chomp)).to eq(['one', 'two'])
+    expect(comments.lines.map(&:chomp)).to eq(["one", "two"])
   end
 
-  it 'does not include inner comments' do
-    source = Solargraph::Source.load_string(%(
+  it "does not include inner comments" do
+    source = described_class.load_string(%(
       # included
       class Foo
         # ignored
@@ -308,17 +308,17 @@ y = 1 #foo
     ))
     node = source.node_at(2, 6)
     comments = source.comments_for(node)
-    expect(comments).to include('included')
-    expect(comments).not_to include('ignored')
+    expect(comments).to include("included")
+    expect(comments).not_to include("ignored")
   end
 
-  it 'handles long squiggly heredocs' do
-    source = Solargraph::Source.load('spec/fixtures/long_squiggly_heredoc.rb')
+  it "handles long squiggly heredocs" do
+    source = described_class.load("spec/fixtures/long_squiggly_heredoc.rb")
     expect(source.string_ranges).not_to be_empty
   end
 
-  it 'handles string array substitutions' do
-    source = Solargraph::Source.load_string(
+  it "handles string array substitutions" do
+    source = described_class.load_string(
       '%W[array of words #{\'with a substitution\'}]'
     )
     expect(source.string_ranges.length).to eq(4)

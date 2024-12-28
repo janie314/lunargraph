@@ -1,44 +1,44 @@
-describe Solargraph::Pin::Parameter do
+describe Lunargraph::Pin::Parameter do
   it "detects block parameter return types from @yieldparam tags" do
-    api_map = Solargraph::ApiMap.new
-    source = Solargraph::Source.load_string(%(
+    api_map = Lunargraph::ApiMap.new
+    source = Lunargraph::Source.load_string(%(
       # @yieldparam [Array]
       def yielder; end
       yielder do |things|
         things
       end
-    ), 'file.rb')
+    ), "file.rb")
     api_map.map source
-    clip = api_map.clip_at('file.rb', Solargraph::Position.new(4, 9))
-    expect(clip.infer.tag).to eq('Array')
+    clip = api_map.clip_at("file.rb", Lunargraph::Position.new(4, 9))
+    expect(clip.infer.tag).to eq("Array")
   end
 
   it "detects block parameter return types from core methods" do
-    api_map = Solargraph::ApiMap.new
-    source = Solargraph::Source.load_string(%(
+    api_map = Lunargraph::ApiMap.new
+    source = Lunargraph::Source.load_string(%(
       String.new.split.each do |str|
         str
       end
-    ), 'file.rb')
+    ), "file.rb")
     api_map.map source
-    clip = api_map.clip_at('file.rb', Solargraph::Position.new(2, 8))
-    expect(clip.infer.tag).to eq('String')
+    clip = api_map.clip_at("file.rb", Lunargraph::Position.new(2, 8))
+    expect(clip.infer.tag).to eq("String")
   end
 
   it "detects block parameter return self from core methods" do
-    api_map = Solargraph::ApiMap.new
-    source = Solargraph::Source.load_string(%(
+    api_map = Lunargraph::ApiMap.new
+    source = Lunargraph::Source.load_string(%(
       String.new.tap do |str|
         str
       end
-    ), 'file.rb')
+    ), "file.rb")
     api_map.map source
-    clip = api_map.clip_at('file.rb', Solargraph::Position.new(2, 8))
-    expect(clip.infer.tag).to eq('String')
+    clip = api_map.clip_at("file.rb", Lunargraph::Position.new(2, 8))
+    expect(clip.infer.tag).to eq("String")
   end
 
   it "gets return types from param type tags" do
-    map = Solargraph::SourceMap.load_string(%(
+    map = Lunargraph::SourceMap.load_string(%(
       require 'set'
 
       # @yieldparam [Array]
@@ -50,26 +50,26 @@ describe Solargraph::Pin::Parameter do
         things
       end
     ))
-    expect(map.locals.first.return_type.tag).to eq('Set')
+    expect(map.locals.first.return_type.tag).to eq("Set")
   end
 
   it "detects near equivalents" do
-    map1 = Solargraph::SourceMap.load_string(%(
+    map1 = Lunargraph::SourceMap.load_string(%(
       strings.each do |foo|
       end
     ))
-    pin1 = map1.locals.select{|p| p.name == 'foo'}.first
-    map2 = Solargraph::SourceMap.load_string(%(
+    pin1 = map1.locals.find { |p| p.name == "foo" }
+    map2 = Lunargraph::SourceMap.load_string(%(
       # A minor comment change
       strings.each do |foo|
       end
       ))
-    pin2 = map2.locals.select{|p| p.name == 'foo'}.first
+    pin2 = map2.locals.find { |p| p.name == "foo" }
     expect(pin1.nearly?(pin2)).to be(true)
   end
 
   it "infers fully qualified namespaces" do
-    source = Solargraph::Source.load_string(%(
+    source = Lunargraph::Source.load_string(%(
       class Foo
         class Bar
           # @return [Array<Bar>]
@@ -78,77 +78,77 @@ describe Solargraph::Pin::Parameter do
       end
       Foo::Bar.new.baz.each do |par|
       end
-    ), 'test.rb')
-    api_map = Solargraph::ApiMap.new
+    ), "test.rb")
+    api_map = Lunargraph::ApiMap.new
     api_map.map source
-    pin = api_map.source_map('test.rb').locals.select{|p| p.name == 'par'}.first
+    pin = api_map.source_map("test.rb").locals.find { |p| p.name == "par" }
     type = pin.typify(api_map)
-    expect(type.namespace).to eq('Foo::Bar')
+    expect(type.namespace).to eq("Foo::Bar")
   end
 
   it "merges near equivalents" do
-    loc = Solargraph::Location.new('test.rb', Solargraph::Range.from_to(0, 0, 0, 0))
-    block = Solargraph::Pin::Block.new(location: loc, name: 'Foo')
-    pin1 = Solargraph::Pin::Parameter.new(closure: block, name: 'bar')
-    pin2 = Solargraph::Pin::Parameter.new(closure: block, name: 'bar', comments: 'a comment')
+    loc = Lunargraph::Location.new("test.rb", Lunargraph::Range.from_to(0, 0, 0, 0))
+    block = Lunargraph::Pin::Block.new(location: loc, name: "Foo")
+    pin1 = described_class.new(closure: block, name: "bar")
+    pin2 = described_class.new(closure: block, name: "bar", comments: "a comment")
     expect(pin1.try_merge!(pin2)).to be(true)
   end
 
   it "does not merge block parameters from different blocks" do
-    loc = Solargraph::Location.new('test.rb', Solargraph::Range.from_to(0, 0, 0, 0))
-    block1 = Solargraph::Pin::Block.new(location: loc, name: 'Foo')
-    block2 = Solargraph::Pin::Block.new(location: loc, name: 'Bar')
-    pin1 = Solargraph::Pin::Parameter.new(closure: block1, name: 'bar')
-    pin2 = Solargraph::Pin::Parameter.new(closure: block2, name: 'bar', comments: 'a comment')
+    loc = Lunargraph::Location.new("test.rb", Lunargraph::Range.from_to(0, 0, 0, 0))
+    block1 = Lunargraph::Pin::Block.new(location: loc, name: "Foo")
+    block2 = Lunargraph::Pin::Block.new(location: loc, name: "Bar")
+    pin1 = described_class.new(closure: block1, name: "bar")
+    pin2 = described_class.new(closure: block2, name: "bar", comments: "a comment")
     expect(pin1.try_merge!(pin2)).to be(false)
   end
 
   it "infers undefined types by default" do
-    source = Solargraph::Source.load_string(%(
+    source = Lunargraph::Source.load_string(%(
       func do |foo|
       end
-    ), 'test.rb')
-    api_map = Solargraph::ApiMap.new
+    ), "test.rb")
+    api_map = Lunargraph::ApiMap.new
     api_map.map source
-    pin = api_map.source_map('test.rb').locals.select{|p| p.is_a?(Solargraph::Pin::Parameter)}.first
+    pin = api_map.source_map("test.rb").locals.find { |p| p.is_a?(described_class) }
     # expect(pin.infer(api_map)).to be_undefined
     expect(pin.typify(api_map)).to be_undefined
     expect(pin.probe(api_map)).to be_undefined
   end
 
   it "detects method parameter return types from @param tags" do
-    source = Solargraph::Source.load_string(%(
+    source = Lunargraph::Source.load_string(%(
       # @param bar [String]
       def foo bar
       end
-    ), 'file.rb')
-    map = Solargraph::SourceMap.map(source)
+    ), "file.rb")
+    map = Lunargraph::SourceMap.map(source)
     expect(map.locals.length).to eq(1)
-    expect(map.locals.first.name).to eq('bar')
-    expect(map.locals.first.return_type.tag).to eq('String')
+    expect(map.locals.first.name).to eq("bar")
+    expect(map.locals.first.return_type.tag).to eq("String")
   end
 
   it "tracks its index" do
-    smap = Solargraph::SourceMap.load_string(%(
+    smap = Lunargraph::SourceMap.load_string(%(
       def foo bar
       end
     ))
-    pin = smap.locals.select{|p| p.name == 'bar'}.first
+    pin = smap.locals.find { |p| p.name == "bar" }
     expect(pin.index).to eq(0)
   end
 
   it "detects unnamed @param tag types" do
-    smap = Solargraph::SourceMap.load_string(%(
+    smap = Lunargraph::SourceMap.load_string(%(
       # @param [String]
       def foo bar
       end
     ))
-    pin = smap.locals.select{|p| p.name == 'bar'}.first
-    expect(pin.return_type.tag).to eq('String')
+    pin = smap.locals.find { |p| p.name == "bar" }
+    expect(pin.return_type.tag).to eq("String")
   end
 
-  it 'infers return types from method reference tags' do
-    source = Solargraph::Source.load_string(%(
+  it "infers return types from method reference tags" do
+    source = Lunargraph::Source.load_string(%(
       class Foo
         # @param bla [String]
         def bar(bla)
@@ -159,16 +159,16 @@ describe Solargraph::Pin::Parameter do
           bla._
         end
       end
-    ), 'test.rb')
-    api_map = Solargraph::ApiMap.new
+    ), "test.rb")
+    api_map = Lunargraph::ApiMap.new
     api_map.map source
-    clip = api_map.clip_at('test.rb', [8, 14])
+    clip = api_map.clip_at("test.rb", [8, 14])
     paths = clip.complete.pins.map(&:path)
-    expect(paths).to include('String#upcase')
+    expect(paths).to include("String#upcase")
   end
 
-  it 'infers return types from relative method reference tags' do
-    source = Solargraph::Source.load_string(%(
+  it "infers return types from relative method reference tags" do
+    source = Lunargraph::Source.load_string(%(
       class Foo
         # @param bla [String]
         def bar(bla)
@@ -178,16 +178,16 @@ describe Solargraph::Pin::Parameter do
           bla._
         end
       end
-    ), 'test.rb')
-    api_map = Solargraph::ApiMap.new
+    ), "test.rb")
+    api_map = Lunargraph::ApiMap.new
     api_map.map source
-    clip = api_map.clip_at('test.rb', [7, 14])
+    clip = api_map.clip_at("test.rb", [7, 14])
     paths = clip.complete.pins.map(&:path)
-    expect(paths).to include('String#upcase')
+    expect(paths).to include("String#upcase")
   end
 
-  it 'infers return types recursively' do
-    source = Solargraph::Source.load_string(%(
+  it "infers return types recursively" do
+    source = Lunargraph::Source.load_string(%(
       class Foo
         # @param bla [String]
         def bar(bla)
@@ -202,16 +202,16 @@ describe Solargraph::Pin::Parameter do
           bla._
         end
       end
-    ), 'test.rb')
-    api_map = Solargraph::ApiMap.new
+    ), "test.rb")
+    api_map = Lunargraph::ApiMap.new
     api_map.map source
-    clip = api_map.clip_at('test.rb', [12, 14])
+    clip = api_map.clip_at("test.rb", [12, 14])
     paths = clip.complete.pins.map(&:path)
-    expect(paths).to include('String#upcase')
+    expect(paths).to include("String#upcase")
   end
 
-  it 'avoids infinite recursion in reference tags' do
-    source = Solargraph::Source.load_string(%(
+  it "avoids infinite recursion in reference tags" do
+    source = Lunargraph::Source.load_string(%(
       class Foo
         # @param (see #baz)
         def bar(bla)
@@ -221,16 +221,16 @@ describe Solargraph::Pin::Parameter do
           bla._
         end
       end
-    ), 'test.rb')
-    api_map = Solargraph::ApiMap.new
+    ), "test.rb")
+    api_map = Lunargraph::ApiMap.new
     api_map.map source
-    clip = api_map.clip_at('test.rb', [7, 14])
+    clip = api_map.clip_at("test.rb", [7, 14])
     paths = clip.complete.pins.map(&:path)
     expect(paths).to be_empty
   end
 
-  it 'uses tags for documentation' do
-    smap = Solargraph::SourceMap.load_string(%(
+  it "uses tags for documentation" do
+    smap = Lunargraph::SourceMap.load_string(%(
       class Foo
         # The bar method
         # @param baz [String] The baz param
@@ -238,16 +238,16 @@ describe Solargraph::Pin::Parameter do
           use(baz)
         end
       end
-    ), 'test.rb')
+    ), "test.rb")
     pin = smap.locals.first
-    expect(pin.documentation).to include('The baz param')
-    expect(pin.documentation).not_to include('The bar method')
+    expect(pin.documentation).to include("The baz param")
+    expect(pin.documentation).not_to include("The bar method")
   end
 
   it "typifies from yieldparam_single_parameter" do
     # This test depends on the fact that Array#each has a
     # yieldparam_single_parameter tag.
-    source = Solargraph::Source.load_string(%(
+    source = Lunargraph::Source.load_string(%(
       # @return [Array<String>]
       def list_strings; end
 
@@ -261,120 +261,120 @@ describe Solargraph::Pin::Parameter do
           end
         end
       end
-    ), 'test.rb')
-    api_map = Solargraph::ApiMap.new
+    ), "test.rb")
+    api_map = Lunargraph::ApiMap.new
     api_map.map source
-    clip = api_map.clip_at('test.rb', [10, 23])
+    clip = api_map.clip_at("test.rb", [10, 23])
     pin = clip.define.first
     type = pin.typify(api_map)
-    expect(type.tag).to eq('String')
+    expect(type.tag).to eq("String")
   end
 
-  context 'for instance methods' do
-    it 'infers types from optarg values' do
-      source = Solargraph::Source.load_string(%(
+  context "for instance methods" do
+    it "infers types from optarg values" do
+      source = Lunargraph::Source.load_string(%(
         class Example
           def foo bar = 'bar'
           end
         end
-      ), 'test.rb')
-      api_map = Solargraph::ApiMap.new
+      ), "test.rb")
+      api_map = Lunargraph::ApiMap.new
       api_map.map(source)
-      pin = api_map.source_map('test.rb').locals.first
+      pin = api_map.source_map("test.rb").locals.first
       type = pin.probe(api_map)
-      expect(type.name).to eq('String')
+      expect(type.name).to eq("String")
     end
 
-    it 'infers types from kwoptarg values' do
-      source = Solargraph::Source.load_string(%(
+    it "infers types from kwoptarg values" do
+      source = Lunargraph::Source.load_string(%(
         class Example
           def foo bar: 'bar'
           end
         end
-      ), 'test.rb')
-      api_map = Solargraph::ApiMap.new
+      ), "test.rb")
+      api_map = Lunargraph::ApiMap.new
       api_map.map(source)
-      pin = api_map.source_map('test.rb').locals.first
+      pin = api_map.source_map("test.rb").locals.first
       type = pin.probe(api_map)
-      expect(type.name).to eq('String')
+      expect(type.name).to eq("String")
     end
   end
 
-  context 'for class methods' do
-    it 'infers types from optarg values' do
-      source = Solargraph::Source.load_string(%(
+  context "for class methods" do
+    it "infers types from optarg values" do
+      source = Lunargraph::Source.load_string(%(
         class Example
           def self.foo bar = 'bar'
           end
         end
-      ), 'test.rb')
-      api_map = Solargraph::ApiMap.new
+      ), "test.rb")
+      api_map = Lunargraph::ApiMap.new
       api_map.map(source)
-      pin = api_map.source_map('test.rb').locals.first
+      pin = api_map.source_map("test.rb").locals.first
       type = pin.probe(api_map)
-      expect(type.name).to eq('String')
+      expect(type.name).to eq("String")
     end
 
-    it 'infers types from kwoptarg values' do
-      source = Solargraph::Source.load_string(%(
+    it "infers types from kwoptarg values" do
+      source = Lunargraph::Source.load_string(%(
         class Example
           def self.foo bar: 'bar'
           end
         end
-      ), 'test.rb')
-      api_map = Solargraph::ApiMap.new
+      ), "test.rb")
+      api_map = Lunargraph::ApiMap.new
       api_map.map(source)
-      pin = api_map.source_map('test.rb').locals.first
+      pin = api_map.source_map("test.rb").locals.first
       type = pin.probe(api_map)
-      expect(type.name).to eq('String')
+      expect(type.name).to eq("String")
     end
 
-    it 'infers types from kwoptarg code' do
-      source = Solargraph::Source.load_string(%(
+    it "infers types from kwoptarg code" do
+      source = Lunargraph::Source.load_string(%(
         class Example
           def self.foo bar: Hash.new
           end
         end
-      ), 'test.rb')
-      api_map = Solargraph::ApiMap.new
+      ), "test.rb")
+      api_map = Lunargraph::ApiMap.new
       api_map.map(source)
-      pin = api_map.source_map('test.rb').locals.first
+      pin = api_map.source_map("test.rb").locals.first
       type = pin.probe(api_map)
-      expect(type.name).to eq('Hash')
+      expect(type.name).to eq("Hash")
     end
   end
 
-  context 'for singleton methods' do
-    it 'infers types from optarg values' do
-      source = Solargraph::Source.load_string(%(
+  context "for singleton methods" do
+    it "infers types from optarg values" do
+      source = Lunargraph::Source.load_string(%(
         class Example
           class << self
             def self.foo bar = 'bar'
             end
           end
         end
-      ), 'test.rb')
-      api_map = Solargraph::ApiMap.new
+      ), "test.rb")
+      api_map = Lunargraph::ApiMap.new
       api_map.map(source)
-      pin = api_map.source_map('test.rb').locals.first
+      pin = api_map.source_map("test.rb").locals.first
       type = pin.probe(api_map)
-      expect(type.name).to eq('String')
+      expect(type.name).to eq("String")
     end
 
-    it 'infers types from kwoptarg values' do
-      source = Solargraph::Source.load_string(%(
+    it "infers types from kwoptarg values" do
+      source = Lunargraph::Source.load_string(%(
         class Example
           class << self
             def self.foo bar: 'bar'
             end
           end
         end
-      ), 'test.rb')
-      api_map = Solargraph::ApiMap.new
+      ), "test.rb")
+      api_map = Lunargraph::ApiMap.new
       api_map.map(source)
-      pin = api_map.source_map('test.rb').locals.first
+      pin = api_map.source_map("test.rb").locals.first
       type = pin.probe(api_map)
-      expect(type.name).to eq('String')
+      expect(type.name).to eq("String")
     end
   end
 end

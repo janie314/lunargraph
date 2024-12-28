@@ -1,15 +1,15 @@
-require 'tempfile'
+require "tempfile"
 
-describe Solargraph::Logging do
+describe Lunargraph::Logging do
   it "logs messages with levels" do
-    file = Tempfile.new('log')
-    Solargraph::Logging.logger.reopen file
-    Solargraph::Logging.logger.warn "Test"
+    file = Tempfile.new("log")
+    described_class.logger.reopen file
+    described_class.logger.warn "Test"
     file.rewind
     msg = file.read
     file.close
     file.unlink
-    Solargraph::Logging.logger.reopen STDERR
-    expect(msg).to include('WARN')
+    described_class.logger.reopen $stderr
+    expect(msg).to include("WARN")
   end
 end
